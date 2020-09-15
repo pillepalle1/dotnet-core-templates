@@ -95,7 +95,7 @@ namespace Pillepalle1.ConsoleTelegramBot
         }
 
         /// <summary>
-        /// Spawns a Task (Consumer) that is responsible for handling all fetches updats
+        /// Spawns a Task (Consumer) that is responsible for handling fetched updats
         /// </summary>
         private static async Task _HandleUpdates()
         {
@@ -110,7 +110,7 @@ namespace Pillepalle1.ConsoleTelegramBot
                 }
                 catch (UpdateNotHandledException ex)
                 {
-                    await Say.Warning($"Update {ex.Update.Id} ({ex.Update.Type}) not remains unhandled");
+                    await Say.Warning($"Update {ex.Update.Id} ({ex.Update.Type}) remains unhandled");
                 }
             }
 

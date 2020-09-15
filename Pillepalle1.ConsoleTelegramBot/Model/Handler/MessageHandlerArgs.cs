@@ -25,7 +25,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
         /// <summary>
         /// If the message contains a text, it can be accessed token-wise
         /// </summary>
-        public CommandTokenizer CommandTokens
+        public StringTokenizer CommandTokens
         {
             get
             {
@@ -33,13 +33,13 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
                 {
                     if (!string.IsNullOrWhiteSpace(Message.Text))
                     {
-                        _commandTokenizer = new CommandTokenizer(Message.Text);
+                        _commandTokenizer = new StringTokenizer(Message.Text, StringTokenizerStrategy.Quotation);
                     }
                 }
 
                 return _commandTokenizer;
             }
         }
-        private CommandTokenizer _commandTokenizer = null;
+        private StringTokenizer _commandTokenizer = null;
     }
 }

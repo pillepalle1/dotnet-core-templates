@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "https://github.com/pillepalle1 https://t.me/pillepalle1",
+  "classifications": [
+    "Console",
+    "C#8",
+    "Telegram",
+    "Bot",
+    "Async"
+  ],
+  "identity": "Pillepalle1.ConsoleTelegramBot",
+  "name": "Telegram Bot based on nuget:Telegram.Bot",
+  "shortName": "tgbot",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "Pillepalle1.ConsoleTelegramBot",
+  "preferNameDirectory": true
+}

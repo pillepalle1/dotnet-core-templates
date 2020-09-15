@@ -1,6 +1,9 @@
 using System;
 using System.Threading.Tasks;
+
 using Telegram.Bot.Types.Enums;
+
+using Pillepalle1.ConsoleTelegramBot.Model.Misc;
 
 namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
 {
@@ -29,7 +32,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
             }
             catch (Exception e)
             {
-                await Console.Error.WriteLineAsync($"Internal error while handling update {e.Message}");
+                await Say.Error($"Internal error while handling update {args.Update.Id}: {e.Message}");
             }
 
             // End of the chain has reached as soon as the update has been marked as handled

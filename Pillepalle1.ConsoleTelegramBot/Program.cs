@@ -55,7 +55,7 @@ namespace Pillepalle1.ConsoleTelegramBot
                 e.Cancel = true;                                        // Intercept the CTRL+C
                 _TerminateProcessEvent.Set();                           // Signal the main thread
 
-                await Say.Warning("Cancellation requested");
+                await Say.Warning("Cancellation request sent");
             };
 
             _TerminateProcessEvent.WaitOne();                           // Suspend main thread until signaled
@@ -74,22 +74,34 @@ namespace Pillepalle1.ConsoleTelegramBot
         /// <param name="cancellationToken">Used for smooth termination</param>
         private static async Task _FetchUpdates(CancellationToken cancellationToken)
         {
-            await Say.Verbose("Start fetching updates");
+            await Say.Verbose("Task for fetching updates started");
 
             var offset = -1;
 
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                var updates = await _Bot.GetUpdatesAsync(offset: offset /*, cancellationToken: cancellationToken*/);
-                offset = updates.Length > 0 ? updates[^1].Id + 1 : -1;
-
-                foreach (var update in updates)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    await _BotUpdatesChannel.Writer.WriteAsync(update);
-                }
-            }
+                    var updates = await _Bot.GetUpdatesAsync(offset: offset, cancellationToken: cancellationToken);
+                    offset = updates.Length > 0 ? updates[^1].Id + 1 : -1;
 
-            await Say.Verbose("Stop fetching updates");
+                    foreach (var update in updates)
+                    {
+                        await _BotUpdatesChannel.Writer.WriteAsync(update);
+                    }
+                }
+
+                throw new TaskCanceledException();
+            }
+            catch (TaskCanceledException)
+            {
+                await Say.Verbose("Task for fetching updates received signal to shut down");
+            }
+            catch(Exception generalException)
+            {
+                await Say.Error("Task for fetching updates crashed unexpectedly");
+                await Say.Error($"> {generalException.Message}");
+            }
 
             _BotUpdatesChannel.Writer.Complete();
         }
@@ -99,7 +111,7 @@ namespace Pillepalle1.ConsoleTelegramBot
         /// </summary>
         private static async Task _HandleUpdates()
         {
-            await Say.Verbose("Start handling updates");
+            await Say.Verbose("Task for handling updates started");
 
             while (await _BotUpdatesChannel.Reader.WaitToReadAsync())
             {
@@ -108,13 +120,13 @@ namespace Pillepalle1.ConsoleTelegramBot
                     var update = await _BotUpdatesChannel.Reader.ReadAsync();
                     await _UpdateHandlerChain.Handle(new UpdateHandlerArgs(_Bot, update));
                 }
-                catch (UpdateNotHandledException ex)
+                catch (UpdateNotHandledException updateNotHandled)
                 {
-                    await Say.Warning($"Update {ex.Update.Id} ({ex.Update.Type}) remains unhandled");
+                    await Say.Warning($"Update {updateNotHandled.Update.Id} ({updateNotHandled.Update.Type}) remains unhandled");
                 }
             }
 
-            await Say.Verbose("Stop handling updates");
+            await Say.Verbose("Task for handling updates shuts down");
         }
     }
 }

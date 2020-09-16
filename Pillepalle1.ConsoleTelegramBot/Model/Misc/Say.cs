@@ -8,7 +8,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         public static int Verbosity = 0;
 
         /// <summary>
-        /// Prints a string to stdout if minimum verbosity is reached
+        /// Prints a string to stderr if minimum verbosity is reached
         /// </summary>
         /// <param name="message">String to write</param>
         /// <param name="minVerbosity">Verbosity threshold for writing</param>
@@ -16,7 +16,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         {
             if (Verbosity >= minVerbosity)
             {
-                await Console.Out.WriteLineAsync(message);
+                await Console.Error.WriteLineAsync(message);
             }
         }
 

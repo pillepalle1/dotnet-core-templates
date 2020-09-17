@@ -9,8 +9,9 @@
         /// </summary>
         public CommandTokenizer(string commandString)
         {
-            _stringTokenizer = new StringTokenizer(commandString, StringTokenizerStrategy.Quotation)
+            _stringTokenizer = new StringTokenizer(commandString)
             {
+                Strategy = StringTokenizerStrategy.Quotation,
                 Delimiter = ' ',
                 Escape = '\\',
                 Quotes = '"'

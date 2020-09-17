@@ -14,22 +14,9 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// Creates a new StringTokenizer
         /// </summary>
         /// <param name="dataInput">Data to be split into tokens</param>
-        /// <param name="strategy">How are special characters treated</param>
-        /// <param name="delimiter">Character used to separate tokens</param>
-        /// <param name="escape">Character used for escaping special characters</param>
-        /// <param name="quotation">Character used for combining tokens</param>
-        public StringTokenizer(
-            string dataInput,
-            StringTokenizerStrategy strategy = StringTokenizerStrategy.Split,
-            char delimiter = ' ',
-            char escape = '\\',
-            char quotation = '"')
+        public StringTokenizer(string dataInput)
         {
             _sourceString = dataInput ?? string.Empty;
-            Strategy = strategy;
-            Delimiter = delimiter;
-            Escape = escape;
-            Quotes = quotation;
         }
         #endregion
 
@@ -164,9 +151,9 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// <summary>
         /// Formats and splits the tokens by delimiter allowing to add delimiters by quoting
         /// </summary>
-        private List<string> LoadQuotation(string line, char delimiter = ' ', char quotation = '\"')
+        private List<string> _SplitRespectingQuotation()
         {
-            string data = line;
+            string data = _sourceString;
 
             // Doing some basic transformations
             data = Whitespaces.Replace(data, " ");
@@ -188,13 +175,13 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                 c = record[i];
 
                 // Quotation-Character: Single -> Quote; Double -> Append
-                if (c == quotation)
+                if (c == Quotes)
                 {
                     if (i == record.Length - 1)
                     {
                         quoting = !quoting;
                     }
-                    else if (quotation == record[1 + i])
+                    else if (Quotes == record[1 + i])
                     {
                         property.Append(c);
                         i++;
@@ -206,7 +193,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                 }
 
                 // Delimiter: Escaping -> Append; Otherwise append
-                else if (c == delimiter)
+                else if (c == Delimiter)
                 {
                     if (quoting)
                     {
@@ -238,9 +225,9 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// <summary>
         /// Splits the string by declaring one character as escape
         /// </summary>
-        private List<string> LoadEscaping(string line, char delimiter = ' ', char escape = '\\')
+        private List<string> _SplitRespectingEscapes()
         {
-            string data = line;
+            string data = _sourceString;
 
             // Doing some basic transformations
             data = Whitespaces.Replace(data, " ");
@@ -268,11 +255,11 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                     continue;
                 }
 
-                if (c == escape)
+                if (c == Escape)
                 {
                     escaping = true;
                 }
-                else if (c == delimiter)
+                else if (c == Delimiter)
                 {
                     l.Add(property.ToString());
                     property.Clear();
@@ -289,9 +276,9 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// <summary>
         /// Splits the string by calling a simple String.Split
         /// </summary>
-        private List<string> LoadSplit(string line, char delimiter = ' ')
+        private List<string> _SplitPlain()
         {
-            return new List<string>(Whitespaces.Replace(line, " ").Split(delimiter));
+            return new List<string>(Whitespaces.Replace(_sourceString, " ").Split(Delimiter));
         }
 
         /// <summary>
@@ -305,10 +292,10 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                 {
                     switch (Strategy)
                     {
-                        case (StringTokenizerStrategy.Quotation): _tokens = LoadQuotation(_sourceString, Delimiter, Quotes); break;
-                        case (StringTokenizerStrategy.Escaping): _tokens = LoadEscaping(_sourceString, Delimiter, Escape); break;
+                        case (StringTokenizerStrategy.Quotation): _tokens = _SplitRespectingQuotation(); break;
+                        case (StringTokenizerStrategy.Escaping): _tokens = _SplitRespectingEscapes(); break;
 
-                        default: _tokens = LoadSplit(_sourceString, Delimiter); break;
+                        default: _tokens = _SplitPlain(); break;
                     }
                 }
 

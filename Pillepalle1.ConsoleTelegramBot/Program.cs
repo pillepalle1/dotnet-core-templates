@@ -100,7 +100,7 @@ namespace Pillepalle1.ConsoleTelegramBot
             catch(Exception generalException)
             {
                 await Say.Error("Task for fetching updates crashed unexpectedly");
-                await Say.Error($"> {generalException.Message}");
+                await Say.Error($"> [{generalException.GetType()}] {generalException.Message}");
             }
 
             _BotUpdatesChannel.Writer.Complete();

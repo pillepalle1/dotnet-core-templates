@@ -87,7 +87,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
         private AUpdateHandler<T> _nextHandler = null;
 
         /// <summary>
-        /// Defines what type of Updates can be handles here. null for all
+        /// Defines what type of Updates can be handled here. null for all
         /// </summary>
         protected abstract UpdateType? HandlesUpdateType { get; }
     }

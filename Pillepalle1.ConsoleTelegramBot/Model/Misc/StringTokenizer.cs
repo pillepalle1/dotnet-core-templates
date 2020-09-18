@@ -7,20 +7,18 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {
     public sealed class StringTokenizer
     {
+        private static readonly Regex _Whitespaces = new Regex("\\s+", RegexOptions.Compiled);
         private string _sourceString = null;                            // Provided data to split
 
-        #region Constructors
         /// <summary>
         /// Creates a new StringTokenizer
         /// </summary>
         /// <param name="dataInput">Data to be split into tokens</param>
         public StringTokenizer(string dataInput)
         {
-            _sourceString = dataInput ?? string.Empty;
+            _sourceString = dataInput ?? throw new NullReferenceException("Cannot tokenize null");
         }
-        #endregion
 
-        #region Interface
         /// <summary>
         /// Access tokens by index
         /// </summary>
@@ -135,19 +133,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
             }
         }
         private char _quotes = '"';
-        #endregion
 
-        #region Predefined Regex
-        private Regex Whitespaces
-        {
-            get
-            {
-                return new Regex("\\s+");
-            }
-        }
-        #endregion
-
-        #region Implementation Details
         /// <summary>
         /// Formats and splits the tokens by delimiter allowing to add delimiters by quoting
         /// </summary>
@@ -156,7 +142,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
             string data = _sourceString;
 
             // Doing some basic transformations
-            data = Whitespaces.Replace(data, " ");
+            data = _Whitespaces.Replace(data, " ");
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
@@ -227,50 +213,43 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// </summary>
         private List<string> _SplitRespectingEscapes()
         {
-            string data = _sourceString;
-
             // Doing some basic transformations
-            data = Whitespaces.Replace(data, " ");
+            string data = _Whitespaces.Replace(_sourceString, " ");
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
-            List<string> l = new List<string>();
-            char[] record = data.ToCharArray();
+            List<string> tokenList = new List<string>();
+            StringBuilder tokenBuilder = new StringBuilder();
 
-            StringBuilder property = new StringBuilder();
-            char c;
-
-            bool escaping = false;
+            bool escapeNext = false;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Scan character by character
-            for (int i = 0; i < record.Length; i++)
+            foreach (char c in data.ToCharArray())
             {
-                c = record[i];
-
-                if (escaping)
+                if (escapeNext)
                 {
-                    property.Append(c);
-                    escaping = false;
+                    tokenBuilder.Append(c);
+                    escapeNext = false;
                     continue;
                 }
 
                 if (c == Escape)
                 {
-                    escaping = true;
+                    escapeNext = true;
                 }
                 else if (c == Delimiter)
                 {
-                    l.Add(property.ToString());
-                    property.Clear();
+                    tokenList.Add(tokenBuilder.ToString());
+                    tokenBuilder.Clear();
                 }
                 else
                 {
-                    property.Append(c);
+                    tokenBuilder.Append(c);
                 }
             }
 
-            return l;
+            return tokenList;
         }
 
         /// <summary>
@@ -278,7 +257,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// </summary>
         private List<string> _SplitPlain()
         {
-            return new List<string>(Whitespaces.Replace(_sourceString, " ").Split(Delimiter));
+            return new List<string>(_Whitespaces.Replace(_sourceString, " ").Split(Delimiter));
         }
 
         /// <summary>
@@ -303,7 +282,6 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
             }
         }
         private List<string> _tokens = null;
-        #endregion
     }
 
     public enum StringTokenizerStrategy

@@ -7,8 +7,11 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {
     public sealed class StringTokenizer
     {
+        // Static "members"
         private static readonly Regex _Whitespaces = new Regex("\\s+", RegexOptions.Compiled);
-        private string _sourceString = null;                            // Provided data to split
+
+        // Members
+        private string _sourceString = null;
 
         /// <summary>
         /// Creates a new StringTokenizer
@@ -139,73 +142,204 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// </summary>
         private List<string> _SplitRespectingQuotation()
         {
-            string data = _sourceString;
-
             // Doing some basic transformations
-            data = _Whitespaces.Replace(data, " ");
+            var data = _Whitespaces.Replace(_sourceString, " ");
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
-            List<string> l = new List<string>();
-            char[] record = data.ToCharArray();
+            var tokenList = new List<string>();
+            var tokenBuilder = new StringBuilder();
 
-            StringBuilder property = new StringBuilder();
-            char c;
+            var expectingDelimiter = false;             // Next char must be Delimiter
+            var expectingQuotes = false;                // Next char must be Quotes
+            var expectingDelimiterOrQuotes = false;     // Next char must be Delimiter or Quotes
 
-            bool quoting = false;
+            var hasReadTokenChar = false;               // We are not between tokens (=> No quoting)
+            var hasSeenSingleQuotes = false;            // We have observed a single quoting char
+            var isQuotedToken = false;                  // The token is encapsuled in quotes
+
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Scan character by character
-            for (int i = 0; i < record.Length; i++)
+            foreach (char c in data)
             {
-                c = record[i];
+                // Occasionally we know what the next character is expected to be. Filter out these
+                // cases first
+                if (expectingDelimiter)
+                {
+                    if (c != Delimiter)
+                    {
+                        throw new FormatException($"Expected delimiter ({Delimiter}) but found {c}");
+                    }
 
-                // Quotation-Character: Single -> Quote; Double -> Append
+                    expectingDelimiter = false;
+                }
+
+                if (expectingQuotes)
+                {
+                    if (c != Quotes)
+                    {
+                        throw new FormatException($"Expected quotes ({Quotes}) but found {c}");
+                    }
+
+                    expectingQuotes = false;
+                }
+
+                if (expectingDelimiterOrQuotes)
+                {
+                    if ((c != Delimiter) && (c != Quotes))
+                    {
+                        throw new FormatException($"Expected delimiter ({Delimiter}) or quotes ({Quotes}) but found {c}");
+                    }
+
+                    expectingDelimiterOrQuotes = false;
+                }
+
+                // In case of Quotes, we are faced with the question whether they
+                // 1. Open quotation
+                // 2. Should be appended to the token
+                // 3. Close quotation
+                // 4. Are an invalid single character within a token
                 if (c == Quotes)
                 {
-                    if (i == record.Length - 1)
+                    if (hasSeenSingleQuotes)
                     {
-                        quoting = !quoting;
+                        tokenBuilder.Append(c);
                     }
-                    else if (Quotes == record[1 + i])
+
+                    hasSeenSingleQuotes = !hasSeenSingleQuotes;
+
+                    // If we are in the middle of a token, we expect either another quotes character
+                    // to complete double quotes or a delimiter to end the quotes
+                    if (hasReadTokenChar)
                     {
-                        property.Append(c);
-                        i++;
-                    }
-                    else
-                    {
-                        quoting = !quoting;
+                        if (hasSeenSingleQuotes)
+                        {
+                            if (isQuotedToken)
+                            {
+                                expectingDelimiterOrQuotes = true;
+                            }
+                            else
+                            {
+                                expectingQuotes = true;
+                            }
+                        }
                     }
                 }
 
-                // Delimiter: Escaping -> Append; Otherwise append
+                // In case of a delimiter, we are faced with the question whether to
+                // 1. Append the currently parsed token
+                // 2. Append the delimiter to the token
                 else if (c == Delimiter)
                 {
-                    if (quoting)
+                    if (isQuotedToken)
                     {
-                        property.Append(c);
+                        if (hasSeenSingleQuotes)
+                        {
+                            tokenList.Add(tokenBuilder.ToString());
+                            tokenBuilder.Clear();
+                            hasReadTokenChar = false;
+                            hasSeenSingleQuotes = false;
+                            isQuotedToken = false;
+                        }
+                        else
+                        {
+                            tokenBuilder.Append(c);
+                            hasReadTokenChar = true;
+                        }
                     }
                     else
                     {
-                        l.Add(property.ToString());
-                        property.Clear();
+                        if (hasSeenSingleQuotes)
+                        {
+                            if (!hasReadTokenChar)
+                            {
+                                isQuotedToken = true;
+                            }
+                            else
+                            {
+                                throw new FormatException($"Unexpected quotes in token. Did you mean {Quotes}{Quotes}?");
+                            }
+
+                            hasSeenSingleQuotes = false;
+
+                            tokenBuilder.Append(c);
+                            hasReadTokenChar = true;
+                        }
+                        else
+                        {
+                            tokenList.Add(tokenBuilder.ToString());
+                            tokenBuilder.Clear();
+                            hasReadTokenChar = false;
+                        }
                     }
                 }
 
-                // Any other character: Append
+                // Any other character is just being appended to
                 else
                 {
-                    property.Append(c);
+                    // Single quoting chars can only be used at the end of a token
+                    if (hasSeenSingleQuotes)
+                    {
+                        if (!hasReadTokenChar)
+                        {
+                            isQuotedToken = true;
+                        }
+                        else
+                        {
+                            throw new FormatException($"Unexpected quotes in token. Did you mean {Quotes}{Quotes}?");
+                        }
+
+                        hasSeenSingleQuotes = false;
+                    }
+
+                    // Append char
+                    tokenBuilder.Append(c);
+                    hasReadTokenChar = true;
                 }
             }
 
-            l.Add(property.ToString());                         // Add last token
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-            // Checking consistency
-            if (quoting) throw new FormatException();          // All open quotation marks closed
+            // Tidy up open flags and checking consistency
+            if (hasReadTokenChar)
+            {
+                tokenList.Add(tokenBuilder.ToString());                         // Add last token
+                hasReadTokenChar = false;
+                expectingDelimiterOrQuotes = false;
+                expectingDelimiter = false;
+            }
 
-            return l;
+            if (isQuotedToken)
+            {
+                if (!hasSeenSingleQuotes)
+                {
+                    throw new FormatException($"Missing matching quotes ({Quotes}) at end of token");
+                }
+
+                hasSeenSingleQuotes = false;
+            }
+
+            if (hasSeenSingleQuotes)
+            {
+                throw new FormatException($"Unexpected unmatched quotes ({Quotes}) at end of source string");
+            }
+
+            if (expectingDelimiter)
+            {
+                throw new FormatException($"Reached end of record while expecting delimiter ({Delimiter})");
+            }
+
+            if (expectingQuotes)
+            {
+                throw new FormatException($"Reached end of record while expecting quotes ({Quotes})");
+            }
+
+            if (expectingDelimiterOrQuotes)
+            {
+                throw new FormatException($"Reached end of record while expecting quotes ({Quotes}) or delimiter ({Delimiter})");
+            }
+
+            return tokenList;
         }
 
         /// <summary>
@@ -214,18 +348,18 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         private List<string> _SplitRespectingEscapes()
         {
             // Doing some basic transformations
-            string data = _Whitespaces.Replace(_sourceString, " ");
+            var data = _Whitespaces.Replace(_sourceString, " ");
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
-            List<string> tokenList = new List<string>();
-            StringBuilder tokenBuilder = new StringBuilder();
+            var tokenList = new List<string>();
+            var tokenBuilder = new StringBuilder();
 
-            bool escapeNext = false;
+            var escapeNext = false;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Scan character by character
-            foreach (char c in data.ToCharArray())
+            foreach (char c in data)
             {
                 if (escapeNext)
                 {
@@ -248,6 +382,10 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                     tokenBuilder.Append(c);
                 }
             }
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+            // Checking consistency
+            if (escapeNext) throw new FormatException();            // Expecting additional char
 
             return tokenList;
         }

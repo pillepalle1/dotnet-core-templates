@@ -1,151 +1,17 @@
 ﻿using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {
-    public sealed class StringTokenizer
+    public static class StringTokenizer
     {
-        // Static "members"
-        private static readonly Regex _Whitespaces = new Regex("\\s+", RegexOptions.Compiled);
-
-        // Members
-        private string _sourceString = null;
-
-        /// <summary>
-        /// Creates a new StringTokenizer
-        /// </summary>
-        /// <param name="dataInput">Data to be split into tokens</param>
-        public StringTokenizer(string dataInput)
-        {
-            _sourceString = dataInput ?? throw new NullReferenceException("Cannot tokenize null");
-        }
-
-        /// <summary>
-        /// Access tokens by index
-        /// </summary>
-        public string this[int index]
-        {
-            get
-            {
-                if (index >= this.Count)
-                {
-                    return String.Empty;
-                }
-
-                return _Tokens[index];
-            }
-        }
-
-        /// <summary>
-        /// How many tokens does the command consist of
-        /// </summary>
-        public int Count
-        {
-            get
-            {
-                return _Tokens.Count;
-            }
-        }
-
-        /// <summary>
-        /// Which strategy is used to split the string into tokens
-        /// </summary>
-        public StringTokenizerStrategy Strategy
-        {
-            get
-            {
-                return _strategy;
-            }
-            set
-            {
-                if (value != _strategy)
-                {
-                    _strategy = value;
-                    _tokens = null;
-                }
-            }
-        }
-        private StringTokenizerStrategy _strategy = StringTokenizerStrategy.Split;
-
-        /// <summary>
-        /// Character used to delimit tokens
-        /// </summary>
-        public char Delimiter
-        {
-            get
-            {
-                return _delimiter;
-            }
-            set
-            {
-                if (value != _delimiter)
-                {
-                    _delimiter = value;
-                    _tokens = null;
-                }
-            }
-        }
-        private char _delimiter = ' ';
-
-        /// <summary>
-        /// Character used to escape the following character
-        /// </summary>
-        public char Escape
-        {
-            get
-            {
-                return _escape;
-            }
-            set
-            {
-                if (value != _escape)
-                {
-                    _escape = value;
-
-                    if (Strategy == StringTokenizerStrategy.Escaping)
-                    {
-                        _tokens = null;
-                    }
-                }
-            }
-        }
-        private char _escape = '\\';
-
-        /// <summary>
-        /// Character used to surround tokens
-        /// </summary>
-        public char Quotes
-        {
-            get
-            {
-                return _quotes;
-            }
-            set
-            {
-                if (value != _quotes)
-                {
-                    _quotes = value;
-
-                    if (Strategy == StringTokenizerStrategy.Quotation)
-                    {
-                        _tokens = null;
-                    }
-                }
-            }
-        }
-        private char _quotes = '"';
-
         /// <summary>
         /// Formats and splits the tokens by delimiter allowing to add delimiters by quoting
         /// </summary>
-        private ImmutableList<string> _SplitRespectingQuotation()
+        public static ImmutableList<string> SplitRespectingQuotation(this string sourceString, char delimiter = ' ', char quotes = '"')
         {
-            // Doing some basic transformations
-            var data = _Whitespaces.Replace(_sourceString, " ");
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
             var tokenList = ImmutableList<string>.Empty;
@@ -157,37 +23,33 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Scan character by character
-            foreach (char c in data)
+            foreach (char c in sourceString)
             {
                 if (expectingDelimiterOrQuotes)
                 {
                     expectingDelimiterOrQuotes = false;
 
-                    // Assertion failed
-                    if ((c != Delimiter) && (c != Quotes))
-                    {
-                        throw new FormatException();
-                    }
-
-                    if (c == Delimiter)
+                    if (c == delimiter)
                     {
                         isQuoting = false;
                     }
 
-                    if(c == Quotes)
+                    else if (c == quotes)
                     {
                         tokenBuilder.Append(c);
                         continue;
+                    }
+
+                    else
+                    {
+                        throw new FormatException($"Unexpected single use of quotes ({quotes}) in quoted token");
                     }
                 }
 
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-                if (c == Quotes)
+                if (c == quotes)
                 {
-                    // The code becomes a bit verbose because of sequences like """""""test"""""""
-                    // in a foreach-loop
-
                     // As long as character other than quotes has been added to the token
                     if (!hasReadTokenChar)
                     {
@@ -213,7 +75,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                     }
                 }
 
-                else if (c == Delimiter)
+                else if (c == delimiter)
                 {
                     if (isQuoting)
                     {
@@ -239,33 +101,34 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                 }
             }
 
-            // Add last token
-            tokenList = tokenList.Add(tokenBuilder.ToString());
-
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Tidy up open flags and checking consistency
+
+            tokenList = tokenList.Add(tokenBuilder.ToString());
+
+            if (isQuoting && !expectingDelimiterOrQuotes)
+            {
+                throw new FormatException("Missing closing quotes");
+            }
+
             return tokenList;
         }
 
         /// <summary>
         /// Splits the string by declaring one character as escape
         /// </summary>
-        private List<string> _SplitRespectingEscapes()
+        public static ImmutableList<string> SplitRespectingEscapes(this string sourceString, char delimiter = ' ', char escapeChar = '\\')
         {
-            // Doing some basic transformations
-            var data = _Whitespaces.Replace(_sourceString, " ");
-
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Initialisation
-            var tokenList = new List<string>();
+            var tokenList = ImmutableList<string>.Empty;
             var tokenBuilder = new StringBuilder();
 
             var escapeNext = false;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
             // Scan character by character
-            foreach (char c in data)
+            foreach (char c in sourceString)
             {
                 if (escapeNext)
                 {
@@ -274,13 +137,13 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
                     continue;
                 }
 
-                if (c == Escape)
+                if (c == escapeChar)
                 {
                     escapeNext = true;
                 }
-                else if (c == Delimiter)
+                else if (c == delimiter)
                 {
-                    tokenList.Add(tokenBuilder.ToString());
+                    tokenList = tokenList.Add(tokenBuilder.ToString());
                     tokenBuilder.Clear();
                 }
                 else
@@ -299,39 +162,9 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
         /// <summary>
         /// Splits the string by calling a simple String.Split
         /// </summary>
-        private List<string> _SplitPlain()
+        public static ImmutableList<string> SplitPlain(this string sourceString, char delimiter = ' ')
         {
-            return new List<string>(_Whitespaces.Replace(_sourceString, " ").Split(Delimiter));
+            return ImmutableList<string>.Empty.AddRange(sourceString.Split(delimiter));
         }
-
-        /// <summary>
-        /// Backer for tokens
-        /// </summary>
-        private List<string> _Tokens
-        {
-            get
-            {
-                if (null == _tokens)
-                {
-                    switch (Strategy)
-                    {
-                        case (StringTokenizerStrategy.Quotation): _tokens = new List<string>(_SplitRespectingQuotation()); break;
-                        case (StringTokenizerStrategy.Escaping): _tokens = _SplitRespectingEscapes(); break;
-
-                        default: _tokens = _SplitPlain(); break;
-                    }
-                }
-
-                return _tokens;
-            }
-        }
-        private List<string> _tokens = null;
-    }
-
-    public enum StringTokenizerStrategy
-    {
-        Split,
-        Quotation,
-        Escaping
     }
 }

@@ -1,21 +1,17 @@
-﻿namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
+﻿using System.Collections.Immutable;
+
+namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {
     public class CommandTokenizer
     {
-        private StringTokenizer _stringTokenizer = null;                // Responsible for splitting string
+        private ImmutableList<string> _tokens = null;
 
         /// <summary>
         /// This class splits a user entered command string into tokens used for automated processing
         /// </summary>
         public CommandTokenizer(string commandString)
         {
-            _stringTokenizer = new StringTokenizer(commandString)
-            {
-                Strategy = StringTokenizerStrategy.Quotation,
-                Delimiter = ' ',
-                Escape = '\\',
-                Quotes = '"'
-            };
+            _tokens = commandString.SplitRespectingQuotation(' ', '"');
         }
 
         /// <summary>
@@ -31,18 +27,18 @@
                 // rid of it
                 if (0 == index)
                 {
-                    int indexAt = _stringTokenizer[0].IndexOf('@');
+                    int indexAt = _tokens[0].IndexOf('@');
                     
                     if(0 > indexAt)
                     {
-                        indexAt = _stringTokenizer[0].Length;
+                        indexAt = _tokens[0].Length;
                     }
 
-                    return _stringTokenizer[0].Substring(0, indexAt);
+                    return _tokens[0].Substring(0, indexAt);
                 }
                 else
                 {
-                    return _stringTokenizer[index];
+                    return _tokens[index];
                 }
             }
         }
@@ -50,12 +46,6 @@
         /// <summary>
         /// Returns the total number of Tokens
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return _stringTokenizer.Count;
-            }
-        }
+        public int Count => _tokens.Count;
     }
 }

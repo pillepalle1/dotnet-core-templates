@@ -35,7 +35,8 @@ namespace Pillepalle1.ConsoleTelegramBot
 
             // ------------------------------------------------------------------------------------
             // Step 2 - Setting up the bot object
-            _UpdateHandlerChain = new StartHandler();
+            _UpdateHandlerChain = new DevHandler();
+            _UpdateHandlerChain.Add(new StartHandler());
 
             _Bot = new TelegramBotClient(Environment.GetEnvironmentVariable("BOT_TOKEN"));
 

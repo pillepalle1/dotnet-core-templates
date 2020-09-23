@@ -20,7 +20,7 @@ namespace Pillepalle1.ConsoleTelegramBot
 
         private static ITelegramBotClient _Bot = null;
         private static Channel<Update> _BotUpdatesChannel = null;
-        private static AUpdateHandler<UpdateHandlerArgs> _UpdateHandlerChain = null;
+        private static AUpdateHandler _UpdateHandlerChain = null;
 
         static async Task Main(string[] args)
         {

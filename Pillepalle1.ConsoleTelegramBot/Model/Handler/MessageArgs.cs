@@ -3,9 +3,9 @@ using Telegram.Bot.Types;
 
 namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
 {
-    public class MessageHandlerArgs
+    public class MessageArgs
     {
-        public MessageHandlerArgs(Message message)
+        public MessageArgs(Message message)
         {
             _message = message;
         }

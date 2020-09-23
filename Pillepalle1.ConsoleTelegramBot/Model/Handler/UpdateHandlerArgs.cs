@@ -60,7 +60,7 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
         /// <summary>
         /// If the Update is a Message, it can easily be accessed here
         /// </summary>
-        public MessageHandlerArgs MessageHandlerArgs
+        public MessageArgs MessageArgs
         {
             get
             {
@@ -68,13 +68,13 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler
                 {
                     if (Update.Type == UpdateType.Message)
                     {
-                        _messageHandlerArgs = new MessageHandlerArgs(Update.Message);
+                        _messageHandlerArgs = new MessageArgs(Update.Message);
                     }
                 }
 
                 return _messageHandlerArgs;
             }
         }
-        private MessageHandlerArgs _messageHandlerArgs = null;
+        private MessageArgs _messageHandlerArgs = null;
     }
 }

@@ -4,7 +4,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages
 {
-    public class DevHandler : AUpdateHandler<UpdateHandlerArgs>
+    public class DevHandler : AUpdateHandler
     {
         protected override UpdateType? HandlesUpdateType => UpdateType.Message;
 
@@ -13,13 +13,13 @@ namespace Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages
             StringBuilder b = new StringBuilder();
 
             b.AppendLine("<code>Parsed Tokens</code>");
-            for (int i = 0; i < args.MessageHandlerArgs.CommandTokens.Count; i++)
+            for (int i = 0; i < args.MessageArgs.CommandTokens.Count; i++)
             {
-                b.AppendLine($"<code>[{i}] </code>{args.MessageHandlerArgs.CommandTokens[i]}");
+                b.AppendLine($"<code>[{i}] </code>{args.MessageArgs.CommandTokens[i]}");
             }
 
             await args.BotClient.SendTextMessageAsync(
-                args.MessageHandlerArgs.Message.Chat.Id, 
+                args.MessageArgs.Message.Chat.Id, 
                 b.ToString(),
                 parseMode: ParseMode.Html);
         }

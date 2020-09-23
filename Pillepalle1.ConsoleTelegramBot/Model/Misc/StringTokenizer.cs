@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Immutable;
 
-namespace pillepalle1.Text
+namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {
     public static class StringTokenizer
     {

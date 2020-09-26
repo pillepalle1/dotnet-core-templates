@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using pillepalle1.Text;
+using System.Collections.Immutable;
 
 namespace Pillepalle1.ConsoleTelegramBot.Model.Misc
 {

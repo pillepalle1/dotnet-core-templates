@@ -10,6 +10,7 @@ using Telegram.Bot.Types;
 
 using Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages;
 using Pillepalle1.ConsoleTelegramBot.Model.Misc;
+using System.Net.Http;
 
 namespace Pillepalle1.ConsoleTelegramBot
 {
@@ -83,12 +84,20 @@ namespace Pillepalle1.ConsoleTelegramBot
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var updates = await _Bot.GetUpdatesAsync(offset: offset, cancellationToken: cancellationToken);
-                    offset = updates.Length > 0 ? updates[^1].Id + 1 : -1;
-
-                    foreach (var update in updates)
+                    try
                     {
-                        await _BotUpdatesChannel.Writer.WriteAsync(update);
+                        var updates = await _Bot.GetUpdatesAsync(offset: offset, cancellationToken: cancellationToken);
+                        offset = updates.Length > 0 ? updates[^1].Id + 1 : -1;
+
+                        foreach (var update in updates)
+                        {
+                            await _BotUpdatesChannel.Writer.WriteAsync(update);
+                        }
+                    }
+                    catch (HttpRequestException httpRequestException)
+                    {
+                        await Say.Warning($"Prevented crash caused by HttpRequestException");
+                        await Say.Warning($"> {httpRequestException.Message}")
                     }
                 }
 

@@ -1,18 +1,16 @@
-﻿using Pillepalle1.ConsoleTelegramBot.Model.Handler;
-
-using System;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Channels;
 
 using Telegram.Bot;
 using Telegram.Bot.Types;
-
-using Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages;
-using Pillepalle1.ConsoleTelegramBot.Model.Misc;
-using System.Net.Http;
 using Telegram.Bot.Exceptions;
-using Microsoft.VisualBasic;
+
+using Pillepalle1.ConsoleTelegramBot.Model.Misc;
+using Pillepalle1.ConsoleTelegramBot.Model.Handler;
+using Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages;
 
 namespace Pillepalle1.ConsoleTelegramBot
 {

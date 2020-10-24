@@ -11,6 +11,8 @@ using Telegram.Bot.Types;
 using Pillepalle1.ConsoleTelegramBot.Model.Handler.Messages;
 using Pillepalle1.ConsoleTelegramBot.Model.Misc;
 using System.Net.Http;
+using Telegram.Bot.Exceptions;
+using Microsoft.VisualBasic;
 
 namespace Pillepalle1.ConsoleTelegramBot
 {
@@ -79,6 +81,7 @@ namespace Pillepalle1.ConsoleTelegramBot
             await Say.Verbose("Task for fetching updates started");
 
             var offset = -1;
+            var delay = 0;
 
             try
             {
@@ -86,6 +89,8 @@ namespace Pillepalle1.ConsoleTelegramBot
                 {
                     try
                     {
+                        await Task.Delay(delay, cancellationToken);
+
                         var updates = await _Bot.GetUpdatesAsync(offset: offset, cancellationToken: cancellationToken);
                         offset = updates.Length > 0 ? updates[^1].Id + 1 : -1;
 
@@ -93,11 +98,22 @@ namespace Pillepalle1.ConsoleTelegramBot
                         {
                             await _BotUpdatesChannel.Writer.WriteAsync(update);
                         }
+
+                        delay = 0;
+                    }
+                    catch (ApiRequestException apiRequestException)
+                    {
+                        await Say.Warning($"Prevented crash caused by ApiRequestException");
+                        await Say.Warning($"> {apiRequestException.Message}");
+
+                        delay = Math.Min(
+                            Math.Max(1000, 2 * delay),
+                            1000 * 60 * 5);
                     }
                     catch (HttpRequestException httpRequestException)
                     {
                         await Say.Warning($"Prevented crash caused by HttpRequestException");
-                        await Say.Warning($"> {httpRequestException.Message}")
+                        await Say.Warning($"> {httpRequestException.Message}");
                     }
                 }
 

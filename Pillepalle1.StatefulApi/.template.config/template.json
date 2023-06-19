@@ -3,6 +3,7 @@
   "author": "https://github.com/pillepalle1 https://t.me/pillepalle1",
   "classifications": [
     "aspcore",
+    "minimalapi",
     "C#10"
   ],
   "identity": "Pillepalle1.StatefulApi",

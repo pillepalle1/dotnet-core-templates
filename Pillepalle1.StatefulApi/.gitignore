@@ -1,0 +1,29 @@
+# Project specific files and directories
+*.db
+
+# User specific configuration files and directories
+.idea/
+.editorconfig
+.vs
+.vscode
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Dotnet core output directories
+[bB]in/
+[oO]bj/
+[dD]ebug/
+[dD]ebugPublic/
+[rR]elease/
+[rR]eleases/
+x64/
+x86/
+
+# Dotnet core specific files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+mono_crash.*.json

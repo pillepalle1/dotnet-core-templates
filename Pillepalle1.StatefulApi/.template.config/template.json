@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "https://github.com/pillepalle1 https://t.me/pillepalle1",
+  "classifications": [
+    "aspcore",
+    "C#10"
+  ],
+  "identity": "Pillepalle1.StatefulApi",
+  "name": "Stateful Web Api (by Pillepalle1)",
+  "shortName": "stateapi",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "Pillepalle1.StatefulApi",
+  "preferNameDirectory": true
+}

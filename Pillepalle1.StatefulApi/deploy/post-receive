@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Implementation of a push-to-{staging,production} post-receive git hook. To 
+# activate, copy this file into the hooks/ folder of the bare repository, name
+# it post-receive and set the executable-flag (chmod +x post-receive).
+#
+# A few assumptions are made regarding the installation path of dotnet-core,
+# modifications of the sudoers file and installation of the systemd .service-
+# files.
+
+export DOTNET_ROOT=/usr/share/dotnet
+export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+
+export PUBLISH_BRANCH="master"
+export PUBLISH_CONFIGURATION=Release
+export TEMPORARY_BUILD_DIRECTORY=/tmp/Pillepalle1.StatefulApi
+export SYSTEMD_SERVICE=Pillepalle1.StatefulApi.service
+export SERVICE_WORKING_DIRECTORY=/srv/Pillepalle1.StatefulApi
+
+sudo systemctl stop "$SYSTEMD_SERVICE"
+
+while read oldrev newrev ref
+do
+    if [[ "$ref" = "refs/heads/$PUBLISH_BRANCH" ]]
+    then
+        echo "Deploying branch $PUBLISH_BRANCH on server"
+
+        echo "1. Prepare temporary directory for the sources"
+        [[ -d "$TEMPORARY_BUILD_DIRECTORY" ]] || mkdir -p "$TEMPORARY_BUILD_DIRECTORY"
+
+        echo "2. Prepare sources"
+        git --work-tree="$PUBLISH_BRANCH" --git-dir="$TEMPORARY_BUILD_DIRECTORY" checkout -f "$PUBLISH_BRANCH"
+
+        echo "3. Build sources"
+        cd "$GIT_SRC"
+        dotnet clean
+        dotnet build
+
+        echo "4. Publish"
+        dotnet publish --configuration "$PUBLISH_CONFIGURATION" -o "$SERVICE_WORKING_DIRECTORY"
+    fi
+done
+
+sudo systemctl start "$SYSTEMD_SERVICE"
+

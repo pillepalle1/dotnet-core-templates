@@ -16,7 +16,7 @@ internal class SqLiteDatabaseInitializer : IDatabaseInitializer
         {
             _ = await dbConnection.ExecuteAsync(@"
             CREATE TABLE IF NOT EXISTS customers (
-                Id INTEGER PRIMARY KEY,
+                Id BIGINT PRIMARY KEY,
                 Name TEXT UNIQUE NOT NULL,
                 Details TEXT NOT NULL);
         ");

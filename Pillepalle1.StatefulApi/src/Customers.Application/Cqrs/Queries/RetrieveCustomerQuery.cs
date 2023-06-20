@@ -1,8 +1,8 @@
 namespace Customers.Application.Cqrs.Queries;
 
-public class RetrieveCustomerQuery : ARequestBase<OneOf<Customer,Problem>>
+public class RetrieveCustomerQuery : ARequestBase<OneOf<Customer, Problem>>
 {
-    public required int Id { init; get; }
+    public required long Id { init; get; }
 }
 
 public class RetrieveCustomerQueryValidator : AbstractValidator<RetrieveCustomerQuery>

@@ -30,10 +30,11 @@ internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd,
 
     public override async Task<OneOf<long, Problem>> HandleImpl(CreateCustomerCmd request, CancellationToken cancellationToken)
     {
+        const long javascriptMaxSafeInteger = 9_007_199_254_740_991;
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
         var rng = new Random();
-        var id = rng.Next();
+        var id = rng.NextInt64(javascriptMaxSafeInteger);
         
         var queryParams = new
         {

@@ -1,0 +1,67 @@
+# Copy the service file to /etc/systemd/system, reload the daemon and start service 
+# $ sudo cp <filename> /etc/systemd/system/ 
+# $ sudo systemctl daemon-reload
+
+# $ sudo systemctl enable <filename>
+# $ sudo systemctl disable <filename>
+# $ sudo systemctl start <filename>
+# $ sudo systemctl restart <filename>
+# $ sudo systemctl status <filename>
+
+[Unit]
+Description=Customers (Staging | Production)
+
+[Service]
+
+# From https://www.freedesktop.org/software/systemd/man/systemd.service.html
+# If set to simple (the default if ExecStart= is specified but neither Type= nor BusName= are), the service manager will 
+# consider the unit started immediately after the main service process has been forked off. It is expected that the 
+# process configured with ExecStart= is the main process of the service. In this mode, if the process offers functiona-
+# lity to other processes on the system, its communication channels should be installed before the service is started up 
+# (e.g. sockets set up by systemd, via socket activation), as the service manager will immediately proceed starting 
+# follow-up units, right after creating the main service process, and before executing the service's binary. Note that 
+# this means systemctl start command lines for simple services will report success even if the service's binary cannot 
+# be invoked successfully (for example because the selected User= doesn't exist, or the service binary is missing).
+#
+# The exec type is similar to simple, but the service manager will consider the unit started immediately after the main 
+# service binary has been executed. The service manager will delay starting of follow-up units until that point. (Or in 
+# other words: simple proceeds with further jobs right after fork() returns, while exec will not proceed before both 
+# fork() and execve() in the service process succeeded.) Note that this means systemctl start command lines for exec 
+# services will report failure when the service's binary cannot be invoked successfully (for example because the 
+# selected User= doesn't exist, or the service binary is missing).
+#
+# Behavior of notify is similar to exec; however, it is expected that the service sends a "READY=1" notification message 
+# via sd_notify(3) or an equivalent call when it has finished starting up. systemd will proceed with starting follow-up 
+# units after this notification message has been sent. If this option is used, NotifyAccess= (see below) should be set 
+# to open access to the notification socket provided by systemd. If NotifyAccess= is missing or set to none, it will be 
+# forcibly set to main.
+Type=notify
+
+# Must point to the directory in which the .dlls are located
+WorkingDirectory=/srv/Customers
+
+# $DOTNET_ROOT/dotnet $WorkingDirectory/<executable assembly>.dll
+ExecStart=/usr/share/dotnet/dotnet /srv/Customers/Customers.WebApi.dll
+
+# For querying logs using `journalctl`
+SyslogIdentifier=Customers
+
+# User under which the services are executed
+User=guest
+
+# Restart service if it crashes
+Restart=always
+RestartSec=10
+
+# Find out via `which dotnet`
+Environment=DOTNET_ROOT=/usr/share/dotnet
+
+# https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+# https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-7.0
+# https://andrewlock.net/5-ways-to-set-the-urls-for-an-aspnetcore-app/
+Environment=ASPNETCORE_URLS=http://0.0.0.0:1337
+
+[Install]
+WantedBy=multi-user.target

@@ -13,9 +13,9 @@ export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 
 export PUBLISH_BRANCH="master"
 export PUBLISH_CONFIGURATION=Release
-export TEMPORARY_BUILD_DIRECTORY=/tmp/Pillepalle1.StatefulApi
-export SYSTEMD_SERVICE=Pillepalle1.StatefulApi.service
-export SERVICE_WORKING_DIRECTORY=/srv/Pillepalle1.StatefulApi
+export TEMPORARY_BUILD_DIRECTORY=/tmp/Customers
+export SYSTEMD_SERVICE=Customers.service
+export SERVICE_WORKING_DIRECTORY=/srv/Customers
 
 sudo systemctl stop "$SYSTEMD_SERVICE"
 
@@ -32,7 +32,7 @@ do
         git --work-tree="$PUBLISH_BRANCH" --git-dir="$TEMPORARY_BUILD_DIRECTORY" checkout -f "$PUBLISH_BRANCH"
 
         echo "3. Build sources"
-        cd "$GIT_SRC"
+        cd "$SERVICE_WORKING_DIRECTORY"
         dotnet clean
         dotnet build
 

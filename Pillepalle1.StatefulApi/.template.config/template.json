@@ -6,13 +6,13 @@
     "minimalapi",
     "C#10"
   ],
-  "identity": "Pillepalle1.StatefulApi",
+  "identity": "Customer",
   "name": "Stateful Web Api (by Pillepalle1)",
   "shortName": "stateapi",
   "tags": {
     "language": "C#",
     "type": "project"
   },
-  "sourceName": "Pillepalle1.StatefulApi",
+  "sourceName": "Customer",
   "preferNameDirectory": true
 }

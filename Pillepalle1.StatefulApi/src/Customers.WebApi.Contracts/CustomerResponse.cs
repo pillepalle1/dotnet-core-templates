@@ -3,7 +3,7 @@ namespace Customers.WebApi.Contracts;
 public class CustomerResponse
 {
     [JsonPropertyName("id")]
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     
     [JsonPropertyName("name")]
     public required string Name { get; set; }

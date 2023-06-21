@@ -18,14 +18,14 @@ internal static class CustomerEndpoints
             //.RequireAuthorization("can-view-customers")
             .WithTags("Customers");
 
-        app.MapGet("/customers/{id:long}", GET_Customer)
+        app.MapGet("/customers/{id:guid}", GET_Customer)
             .Produces<CustomerResponse>()
             .Produces<ProblemDetails>(404)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-view-customers")
             .WithTags("Customers");
 
-        app.MapPost("/customers/{id:long}", POST_Customer)
+        app.MapPost("/customers/{id:guid}", POST_Customer)
             .Produces(200)
             .Produces<ProblemDetails>(400)
             .Produces<ProblemDetails>(404)
@@ -33,7 +33,7 @@ internal static class CustomerEndpoints
             //.RequireAuthorization("can-modify-customers")
             .WithTags("Customers");
 
-        app.MapDelete("/customers/{id:long}", DELETE_Customer)
+        app.MapDelete("/customers/{id:guid}", DELETE_Customer)
             .Produces(204)
             .Produces<ProblemDetails>(404)
             .Produces<ProblemDetails>(500)
@@ -62,7 +62,7 @@ internal static class CustomerEndpoints
     }
 
     private static async Task<IResult> GET_Customer(
-        long id,
+        Guid id,
         IMediator mediator)
     {
         var query = new RetrieveCustomerQuery()
@@ -79,7 +79,7 @@ internal static class CustomerEndpoints
 
     private static async Task<IResult> POST_Customer(
         UpdateCustomerRequest request,
-        long id,
+        Guid id,
         IMediator mediator)
     {
         // Fetch the existing entity
@@ -97,7 +97,7 @@ internal static class CustomerEndpoints
     }
 
     private static async Task<IResult> DELETE_Customer(
-        long id,
+        Guid id,
         IMediator mediator)
     {
         var cmd = new DeleteCustomerCmd()

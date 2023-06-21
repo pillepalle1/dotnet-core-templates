@@ -1,6 +1,6 @@
 namespace Customers.Application.Cqrs.Commands;
 
-public class CreateCustomerCmd : ARequestBase<OneOf<long, Problem>>
+public class CreateCustomerCmd : ARequestBase<OneOf<Guid, Problem>>
 {
     public required string Name { init; get; }
     public required string Details { init; get; }
@@ -15,7 +15,7 @@ public class CreateCustomerCmdValidator : AbstractValidator<CreateCustomerCmd>
     }
 }
 
-internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd, long>
+internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd, Guid>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
@@ -28,14 +28,11 @@ internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd,
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<long, Problem>> HandleImpl(CreateCustomerCmd request, CancellationToken cancellationToken)
+    public override async Task<OneOf<Guid, Problem>> HandleImpl(CreateCustomerCmd request, CancellationToken cancellationToken)
     {
-        const long javascriptMaxSafeInteger = 9_007_199_254_740_991;
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        var rng = new Random();
-        var id = rng.NextInt64(javascriptMaxSafeInteger);
-        
+        var id = Guid.NewGuid();
         var queryParams = new
         {
             Id = id,

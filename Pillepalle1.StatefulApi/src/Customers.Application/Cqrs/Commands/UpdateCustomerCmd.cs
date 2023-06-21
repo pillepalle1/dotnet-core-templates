@@ -2,7 +2,7 @@ namespace Customers.Application.Cqrs.Commands;
 
 public class UpdateCustomerCmd : ARequestBase<OneOf<int, Problem>>
 {
-    public required long Id { init; get; }
+    public required Guid Id { init; get; }
     public required string Name { init; get; }
     public required string Details { init; get; }
 }

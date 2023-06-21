@@ -2,7 +2,7 @@ namespace Customers.Application.Cqrs.Commands;
 
 public class DeleteCustomerCmd : ARequestBase<OneOf<int,Problem>>
 {
-    public required long Id { init; get; }
+    public required Guid Id { init; get; }
 }
 
 public class DeleteCustomerCmdValidator : AbstractValidator<DeleteCustomerCmd>

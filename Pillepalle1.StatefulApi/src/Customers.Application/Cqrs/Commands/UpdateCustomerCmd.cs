@@ -33,7 +33,9 @@ internal class UpdateCustomerCmdHandler : ARequestHandlerBase<UpdateCustomerCmd,
     public override async Task<OneOf<int, Problem>> HandleImpl(UpdateCustomerCmd request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
-        var rowsAffected = await dbConnection.ExecuteAsync(@"UPDATE customers SET Name=@Name,Details=@Details WHERE Id=@Id;", request);
+
+        var sql = @"UPDATE customers SET Name=@Name,Details=@Details WHERE Id=@Id;";
+        var rowsAffected = await dbConnection.ExecuteAsync(sql, request);
         
         return rowsAffected > 0
             ? rowsAffected

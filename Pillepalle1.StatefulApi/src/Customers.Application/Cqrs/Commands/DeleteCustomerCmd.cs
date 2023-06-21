@@ -29,7 +29,9 @@ internal class DeleteCustomerCmdHandler : ARequestHandlerBase<DeleteCustomerCmd,
     public override async Task<OneOf<int, Problem>> HandleImpl(DeleteCustomerCmd request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
-        var rowsAffected = await dbConnection.ExecuteAsync(@"DELETE FROM customers WHERE Id=@Id;", request);
+
+        var sql = @"DELETE FROM customers WHERE Id=@Id;";
+        var rowsAffected = await dbConnection.ExecuteAsync(sql, request);
         
         return rowsAffected > 0
             ? rowsAffected

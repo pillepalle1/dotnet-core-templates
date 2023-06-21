@@ -30,8 +30,8 @@ internal class RetrieveCustomerQueryHandler : ARequestHandlerBase<RetrieveCustom
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        var customers = await dbConnection
-            .QueryAsync<Customer>(@"SELECT * FROM customers WHERE Id=@Id LIMIT 1;", request);
+        var sql = @"SELECT * FROM customers WHERE Id=@Id LIMIT 1;";
+        var customers = await dbConnection.QueryAsync<Customer>(sql, request);
 
         return customers.Any()
             ? customers.First()

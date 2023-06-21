@@ -22,7 +22,9 @@ internal class RetrieveAllCustomersQueryHandler : ARequestHandlerBase<RetrieveAl
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        var customers = await dbConnection.QueryAsync<Customer>(@"SELECT * FROM customers;");
+        var sql = @"SELECT * FROM customers;";
+        var customers = await dbConnection.QueryAsync<Customer>(sql);
+        
         return customers.ToImmutableList();
     }
 }

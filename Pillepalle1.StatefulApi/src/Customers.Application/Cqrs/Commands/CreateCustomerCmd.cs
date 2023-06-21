@@ -42,9 +42,9 @@ internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd,
             request.Name,
             request.Details
         };
-        
-        var rowsAffected = await dbConnection.ExecuteAsync(
-            @"INSERT INTO customers (Id,Name,Details) VALUES (@Id,@Name,@Details) ON CONFLICT DO NOTHING;", queryParams);
+
+        var sql = @"INSERT INTO customers (Id,Name,Details) VALUES (@Id,@Name,@Details) ON CONFLICT DO NOTHING;"; 
+        var rowsAffected = await dbConnection.ExecuteAsync(sql, queryParams);
 
         return rowsAffected > 0
             ? id

@@ -1,19 +1,19 @@
 namespace Customers.Application.Cqrs.Commands;
 
-public class DeleteCustomerCmd : ARequestBase<OneOf<int,Problem>>
+public class DeleteCustomerCmd : ARequest<Unit>
 {
-    public required Guid Id { init; get; }
+    public required Guid CustomerId { init; get; }
 }
 
 public class DeleteCustomerCmdValidator : AbstractValidator<DeleteCustomerCmd>
 {
     public DeleteCustomerCmdValidator()
     { 
-        RuleFor(x => x.Id).IsValidId();
+        RuleFor(x => x.CustomerId).IsValidId();
     }
 }
 
-internal class DeleteCustomerCmdHandler : ARequestHandlerBase<DeleteCustomerCmd, int>
+internal class DeleteCustomerCmdHandler : ARequestHandler<DeleteCustomerCmd, Unit>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
@@ -26,15 +26,21 @@ internal class DeleteCustomerCmdHandler : ARequestHandlerBase<DeleteCustomerCmd,
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<int, Problem>> HandleImpl(DeleteCustomerCmd request, CancellationToken cancellationToken)
+    public override async Task<OneOf<Unit, Problem>> HandleImpl(DeleteCustomerCmd request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        var sql = @"DELETE FROM customers WHERE Id=@Id;";
-        var rowsAffected = await dbConnection.ExecuteAsync(sql, request);
+        // Make sure the customer exists
+        var customerExists = await dbConnection.ExistsCustomerEntryAsync(request.CustomerId);
+        if (!customerExists)
+        {
+            return Problem.EntityNotFound<Customer>(request.CustomerId.ToString());
+        }
         
-        return rowsAffected > 0
-            ? rowsAffected
-            : Problem.EntityNotFound<Customer>(request.Id.ToString());
+        // Attempt to remove the customer from database
+        var customerDeleted = await dbConnection.DeleteCustomerEntryAsync(request.CustomerId);
+        return customerDeleted
+            ? Unit.Value
+            : Problem.SubsystemFailed($"Entity {typeof(Customer)} with key {request.CustomerId.ToString()} exists but still resides in database");
     }
 }

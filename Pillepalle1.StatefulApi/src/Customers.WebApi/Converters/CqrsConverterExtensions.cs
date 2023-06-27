@@ -10,7 +10,7 @@ public static class CqrsConverterExtensions
 
     public static UpdateCustomerCmd ToCqrs(this UpdateCustomerRequest request, Customer customer) => new()
     {
-        Id = customer.Id,
+        CustomerId = customer.Id,
         Name = request.Name ?? customer.Name,
         Details = request.Details ?? customer.Details
     };

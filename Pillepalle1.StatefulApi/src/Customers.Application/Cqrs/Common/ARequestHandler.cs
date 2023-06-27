@@ -1,15 +1,15 @@
 using System.Text.Json;
 
-namespace Customers.Application.Model;
+namespace Customers.Application.Cqrs.Common;
 
-public abstract class ARequestHandlerBase<TRequest,TResponse> : IRequestHandler<TRequest,OneOf<TResponse, Problem>>
-    where TRequest : ARequestBase<OneOf<TResponse,Problem>>
+internal abstract class ARequestHandler<TRequest,TResponse> : IRequestHandler<TRequest,OneOf<TResponse, Problem>>
+    where TRequest : ARequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
-    private readonly ILogger<ARequestHandlerBase<TRequest, TResponse>> _logger;
+    private readonly ILogger<ARequestHandler<TRequest, TResponse>> _logger;
 
-    public ARequestHandlerBase(
-        ILogger<ARequestHandlerBase<TRequest,TResponse>> logger,
+    public ARequestHandler(
+        ILogger<ARequestHandler<TRequest,TResponse>> logger,
         IEnumerable<IValidator<TRequest>> validators)
     {
         _logger = logger;

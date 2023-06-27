@@ -1,6 +1,6 @@
 namespace Customers.Application.Cqrs.Commands;
 
-public class CreateCustomerCmd : ARequestBase<OneOf<Guid, Problem>>
+public class CreateCustomerCmd : ARequest<Customer>
 {
     public required string Name { init; get; }
     public required string Details { init; get; }
@@ -15,7 +15,7 @@ public class CreateCustomerCmdValidator : AbstractValidator<CreateCustomerCmd>
     }
 }
 
-internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd, Guid>
+internal class CreateCustomerCmdHandler : ARequestHandler<CreateCustomerCmd, Customer>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
@@ -28,23 +28,31 @@ internal class CreateCustomerCmdHandler : ARequestHandlerBase<CreateCustomerCmd,
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<Guid, Problem>> HandleImpl(CreateCustomerCmd request, CancellationToken cancellationToken)
+    public override async Task<OneOf<Customer, Problem>> HandleImpl(CreateCustomerCmd request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        var id = Guid.NewGuid();
-        var queryParams = new
+        // Find unused id
+        Guid id;
+        bool customerExists;
+        do
+        {
+            id = Guid.NewGuid();
+            customerExists = await dbConnection.ExistsCustomerEntryAsync(id);
+            
+        } while (customerExists);
+        
+        // Create entity
+        var customer = new Customer()
         {
             Id = id,
-            request.Name,
-            request.Details
+            Name = request.Name,
+            Details = request.Details
         };
-
-        var sql = @"INSERT INTO customers (Id,Name,Details) VALUES (@Id,@Name,@Details) ON CONFLICT DO NOTHING;"; 
-        var rowsAffected = await dbConnection.ExecuteAsync(sql, queryParams);
-
-        return rowsAffected > 0
-            ? id
-            : Problem.EntityExists<Customer>(request.Name);
+             
+        var customerCreated =  await dbConnection.CreateCustomerEntryAsync(customer);
+        return customerCreated
+            ? customer
+            : Problem.SubsystemFailed($"Database failed to store {typeof(Customer)} with id {id.ToString()}");
     }
 }

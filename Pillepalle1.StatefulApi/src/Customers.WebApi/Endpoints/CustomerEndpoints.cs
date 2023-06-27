@@ -6,7 +6,7 @@ internal static class CustomerEndpoints
     {
         app.MapPut("/customers", PUT_Customer)
             .Accepts<CreateCustomerRequest>("application/json")
-            .Produces(201)
+            .Produces<CustomerResponse>(StatusCodes.Status201Created)
             .Produces<ProblemDetails>(400)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-modify-customers")
@@ -47,7 +47,7 @@ internal static class CustomerEndpoints
     {
         var create = await mediator.Send(request.ToCqrs());
         return create.Succeeded()
-            ? Results.Created($"/customers/{create.Unwrap()}", create.Unwrap())
+            ? Results.Created($"/customers/{create.Unwrap().Id}", create.Unwrap())
             : create.Problem().ToProblemDetailsResult();
     }
 
@@ -67,7 +67,7 @@ internal static class CustomerEndpoints
     {
         var query = new RetrieveCustomerQuery()
         {
-            Id = id
+            CustomerId = id
         };
         
         var fetch = await mediator.Send(query);
@@ -85,14 +85,14 @@ internal static class CustomerEndpoints
         // Fetch the existing entity
         var fetch = await mediator.Send(new RetrieveCustomerQuery()
         {
-            Id = id
+            CustomerId = id
         });
         if (!fetch.Succeeded()) return fetch.Problem().ToProblemDetailsResult();
         
         // Update
         var update = await mediator.Send(request.ToCqrs(fetch.Unwrap()));
         return update.Succeeded()
-            ? Results.Ok()
+            ? Results.Ok(update.Unwrap().ToResponse())
             : update.Problem().ToProblemDetailsResult();
     }
 
@@ -102,7 +102,7 @@ internal static class CustomerEndpoints
     {
         var cmd = new DeleteCustomerCmd()
         {
-            Id = id
+            CustomerId = id
         };
         
         var delete = await mediator.Send(cmd);

@@ -42,6 +42,22 @@ public class Problem
         ProblemType = ProblemType.EntityExists,
         Details = $"Key = {key}".ToEnumerable()
     };
+
+    public static Problem ConfigurationRequired(IEnumerable<string> details) => new Problem()
+    {
+        Title = "System configuration required",
+        Description = "The operation could not be completed because there is additional configuration required",
+        ProblemType = ProblemType.InvalidOperation,
+        Details = details
+    };
+
+    public static Problem SubsystemFailed(string details) => new Problem()
+    {
+        Title = "Internal",
+        Description = "The operation failed for internal reasons",
+        ProblemType = ProblemType.Unknown,
+        Details = details.ToEnumerable()
+    };
 }
 
 public enum ProblemType
@@ -62,9 +78,19 @@ public enum ProblemType
     Validation,
     
     /// <summary>
+    /// Indicates that the current system state does not allow the the operation to complete 
+    /// </summary>
+    InvalidOperation,
+    
+    /// <summary>
+    /// Bulk-Operation, that could have failed for a multitude of reasons
+    /// </summary>
+    Unknown,
+    
+    /// <summary>
     /// Indicates that something crashed 
     /// </summary>
-    Crash
+    Crash,
 }
 
 internal static class ProblemExtensions

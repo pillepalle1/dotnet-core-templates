@@ -1,4 +1,4 @@
-namespace Customers.Application.Model;
+namespace Customers.Application.Extensions;
 
 public static class OneOfExtensions
 {

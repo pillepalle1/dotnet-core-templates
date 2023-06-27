@@ -1,8 +1,8 @@
 namespace Customers.Application.Cqrs.Commands;
 
-public class UpdateCustomerCmd : ARequestBase<OneOf<int, Problem>>
+public class UpdateCustomerCmd : ARequest<Customer>
 {
-    public required Guid Id { init; get; }
+    public required Guid CustomerId { init; get; }
     public required string Name { init; get; }
     public required string Details { init; get; }
 }
@@ -11,13 +11,13 @@ public class UpdateCustomerCmdValidator : AbstractValidator<UpdateCustomerCmd>
 {
     public UpdateCustomerCmdValidator()
     {
-        RuleFor(x => x.Id).IsValidId();
+        RuleFor(x => x.CustomerId).IsValidId();
         RuleFor(x => x.Name).IsValidCustomerName();
         RuleFor(x => x.Details).AreValidCustomerDetails();
     }
 }
 
-internal class UpdateCustomerCmdHandler : ARequestHandlerBase<UpdateCustomerCmd, int>
+internal class UpdateCustomerCmdHandler : ARequestHandler<UpdateCustomerCmd, Customer>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
@@ -30,15 +30,28 @@ internal class UpdateCustomerCmdHandler : ARequestHandlerBase<UpdateCustomerCmd,
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<int, Problem>> HandleImpl(UpdateCustomerCmd request, CancellationToken cancellationToken)
+    public override async Task<OneOf<Customer, Problem>> HandleImpl(UpdateCustomerCmd request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
-
-        var sql = @"UPDATE customers SET Name=@Name,Details=@Details WHERE Id=@Id;";
-        var rowsAffected = await dbConnection.ExecuteAsync(sql, request);
         
-        return rowsAffected > 0
-            ? rowsAffected
-            : Problem.EntityNotFound<Customer>(request.Id.ToString());
+        // Make sure the customer exists
+        var customerExists = await dbConnection.ExistsCustomerEntryAsync(request.CustomerId);
+        if (!customerExists)
+        {
+            return Problem.EntityNotFound<Customer>(request.CustomerId.ToString());
+        }
+        
+        // Update customer
+        var updatedCustomer = new Customer()
+        {
+            Id = request.CustomerId,
+            Name = request.Name,
+            Details = request.Details
+        };
+
+        var customerUpdated = await dbConnection.UpdateCustomerEntryAsync(updatedCustomer);
+        return customerUpdated
+            ? updatedCustomer
+            : Problem.SubsystemFailed($"Entity {typeof(Customer)} with key {request.CustomerId.ToString()} exists but was not updated");
     }
 }

@@ -7,6 +7,7 @@ internal static class ValidationExtensions
     
     public static IRuleBuilderOptions<T, long> IsValidId<T>(this IRuleBuilder<T, long> ruleBuilder) =>
         ruleBuilder.GreaterThanOrEqualTo(0).WithMessage("Ids cannot be negative");
+    
     public static IRuleBuilderOptions<T, int> IsValidId<T>(this IRuleBuilder<T, int> ruleBuilder) =>
         ruleBuilder.GreaterThanOrEqualTo(0).WithMessage("Ids cannot be negative");
     public static IRuleBuilderOptions<T, string> IsValidCustomerName<T>(this IRuleBuilder<T, string> ruleBuilder) =>

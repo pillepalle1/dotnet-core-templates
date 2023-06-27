@@ -16,3 +16,5 @@ global using Customers.Application.Model;
 global using Customers.Application.Services;
 global using Customers.Application.Entities;
 global using Customers.Application.Extensions;
+
+global using Customers.Application.Cqrs.Common;

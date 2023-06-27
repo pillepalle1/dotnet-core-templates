@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace Customers.WebApi.Extensions;
 public static class CommonProblems
 {
@@ -13,8 +11,8 @@ public static class CommonProblems
     private static int StatusCode(this Problem problem) => problem.ProblemType switch
     {
         ProblemType.Crash => 500,
-        ProblemType.Validation => 500,
-        ProblemType.EntityExists => 400,
+        ProblemType.Validation => 403,
+        ProblemType.EntityExists => 409,
         ProblemType.EntityNotFound => 404,
         _ => 500
     };

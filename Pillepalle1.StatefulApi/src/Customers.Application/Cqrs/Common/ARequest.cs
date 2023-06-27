@@ -1,7 +1,8 @@
 using System.Diagnostics;
 
-namespace Customers.Application.Model;
-public abstract class ARequestBase<TResponse> : IRequest<TResponse>
+namespace Customers.Application.Cqrs.Common;
+
+public abstract class ARequest<TResponse> : IRequest<OneOf<TResponse,Problem>>
 {
     internal Guid MediatorRequestId { init; get; } = Guid.NewGuid();
     public Guid GetRequestId() => MediatorRequestId;

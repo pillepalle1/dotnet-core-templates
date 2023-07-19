@@ -55,6 +55,6 @@ internal static class CustomerDatabaseExtensions
             Id = customerId
         };
         
-        return await dbConnection.QuerySingleAsync<Customer>(sql, queryParams);
+        return await dbConnection.QuerySingleOrDefaultAsync<Customer>(sql, queryParams);
     }
 }

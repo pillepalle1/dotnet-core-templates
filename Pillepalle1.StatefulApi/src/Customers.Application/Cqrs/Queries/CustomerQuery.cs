@@ -1,32 +1,32 @@
 namespace Customers.Application.Cqrs.Queries;
 
-public class RetrieveCustomerQuery : ARequest<Customer>
+public class CustomerQuery : ARequest<Customer>
 {
     public required Guid CustomerId { init; get; }
 }
 
-public class RetrieveCustomerQueryValidator : AbstractValidator<RetrieveCustomerQuery>
+public class CustomerQueryValidator : AbstractValidator<CustomerQuery>
 {
-    public RetrieveCustomerQueryValidator()
+    public CustomerQueryValidator()
     {
         RuleFor(x => x.CustomerId).IsValidId();
     }
 }
 
-internal class RetrieveCustomerQueryHandler : ARequestHandler<RetrieveCustomerQuery, Customer>
+internal class CustomerQueryHandler : ARequestHandler<CustomerQuery, Customer>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
-    public RetrieveCustomerQueryHandler(
-        ILogger<RetrieveCustomerQueryHandler> logger,
-        IEnumerable<IValidator<RetrieveCustomerQuery>> validators,
+    public CustomerQueryHandler(
+        ILogger<CustomerQueryHandler> logger,
+        IEnumerable<IValidator<CustomerQuery>> validators,
         IDatabaseConnectionProvider databaseConnectionProvider)
         : base(logger, validators)
     {
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<Customer, Problem>> HandleImpl(RetrieveCustomerQuery request, CancellationToken cancellationToken)
+    public override async Task<OneOf<Customer, Problem>> HandleImpl(CustomerQuery request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 

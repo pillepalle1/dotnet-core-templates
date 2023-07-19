@@ -1,24 +1,24 @@
 namespace Customers.Application.Cqrs.Queries;
 
-public class RetrieveAllCustomersQuery : ARequest<ImmutableList<Customer>>
+public class AllCustomersQuery : ARequest<ImmutableList<Customer>>
 {
 
 }
 
-internal class RetrieveAllCustomersQueryHandler : ARequestHandler<RetrieveAllCustomersQuery, ImmutableList<Customer>>
+internal class AllCustomersQueryHandler : ARequestHandler<AllCustomersQuery, ImmutableList<Customer>>
 {
     private readonly IDatabaseConnectionProvider _databaseConnectionProvider;
 
-    public RetrieveAllCustomersQueryHandler(
-        ILogger<RetrieveAllCustomersQueryHandler> logger,
-        IEnumerable<IValidator<RetrieveAllCustomersQuery>> validators,
+    public AllCustomersQueryHandler(
+        ILogger<AllCustomersQueryHandler> logger,
+        IEnumerable<IValidator<AllCustomersQuery>> validators,
         IDatabaseConnectionProvider databaseConnectionProvider) 
         : base(logger, validators)
     {
         _databaseConnectionProvider = databaseConnectionProvider;
     }
 
-    public override async Task<OneOf<ImmutableList<Customer>, Problem>> HandleImpl(RetrieveAllCustomersQuery request, CancellationToken cancellationToken)
+    public override async Task<OneOf<ImmutableList<Customer>, Problem>> HandleImpl(AllCustomersQuery request, CancellationToken cancellationToken)
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
         

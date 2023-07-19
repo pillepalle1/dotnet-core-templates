@@ -54,7 +54,7 @@ internal static class CustomerEndpoints
     private static async Task<IResult> GET_Customers(
         IMediator mediator)
     {
-        var query = new RetrieveAllCustomersQuery();
+        var query = new AllCustomersQuery();
         var fetchAll = await mediator.Send(query);
         return fetchAll.Succeeded()
             ? Results.Ok(fetchAll.Unwrap().Select(x => x.ToResponse()))
@@ -65,7 +65,7 @@ internal static class CustomerEndpoints
         Guid id,
         IMediator mediator)
     {
-        var query = new RetrieveCustomerQuery()
+        var query = new CustomerQuery()
         {
             CustomerId = id
         };
@@ -83,7 +83,7 @@ internal static class CustomerEndpoints
         IMediator mediator)
     {
         // Fetch the existing entity
-        var fetch = await mediator.Send(new RetrieveCustomerQuery()
+        var fetch = await mediator.Send(new CustomerQuery()
         {
             CustomerId = id
         });

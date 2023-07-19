@@ -30,14 +30,9 @@ internal class RetrieveCustomerQueryHandler : ARequestHandler<RetrieveCustomerQu
     {
         var dbConnection = await _databaseConnectionProvider.ProvideAsync();
 
-        // Make sure the customer exists
-        var customerExists = await dbConnection.ExistsCustomerEntryAsync(request.CustomerId);
-        if (!customerExists)
-        {
-            return Problem.EntityNotFound<Customer>(request.CustomerId.ToString());
-        }
-        
-        // Retrieve the customer
-        return await dbConnection.RetrieveCustomerEntryAsync(request.CustomerId);
+        var customer = await dbConnection.RetrieveCustomerEntryAsync(request.CustomerId);
+        return customer is not null
+            ? customer
+            : Problem.EntityNotFound<Customer>(request.CustomerId.ToString());
     }
 }

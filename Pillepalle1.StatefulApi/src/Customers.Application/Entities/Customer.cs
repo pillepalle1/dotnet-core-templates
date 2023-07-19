@@ -10,17 +10,7 @@ public class Customer
 internal static class CustomerDatabaseExtensions
 {
     public static async Task<bool> ExistsCustomerEntryAsync(this IDbConnection dbConnection, Guid customerId)
-    {
-        var sql = @"SELECT COUNT(*) FROM Customers WHERE Id=@Id;";
-
-        var queryParams = new
-        {
-            Id = customerId
-        };
-
-        var count = await dbConnection.ExecuteScalarAsync<int>(sql, queryParams);
-        return 0 != count;
-    }
+        => (await RetrieveCustomerEntryAsync(dbConnection, customerId)) is not null;
     
     public static async Task<bool> CreateCustomerEntryAsync(this IDbConnection dbConnection, Customer customer)
     {
@@ -56,7 +46,7 @@ internal static class CustomerDatabaseExtensions
         return rowsAffected > 0;
     }
 
-    public static async Task<Customer> RetrieveCustomerEntryAsync(this IDbConnection dbConnection, Guid customerId)
+    public static async Task<Customer?> RetrieveCustomerEntryAsync(this IDbConnection dbConnection, Guid customerId)
     {
         var sql = @"SELECT * FROM Customers WHERE Id=@Id LIMIT 1;";
 

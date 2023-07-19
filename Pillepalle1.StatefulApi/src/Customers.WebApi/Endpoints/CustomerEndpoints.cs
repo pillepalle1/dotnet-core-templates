@@ -45,7 +45,7 @@ internal static class CustomerEndpoints
         CreateCustomerRequest request,
         IMediator mediator)
     {
-        var create = await mediator.Send(request.ToCqrs());
+        var create = await mediator.Send(request.ToMediatorRequest());
         return create.Succeeded()
             ? Results.Created($"/customers/{create.Unwrap().Id}", create.Unwrap())
             : create.Problem().ToProblemDetailsResult();
@@ -57,7 +57,7 @@ internal static class CustomerEndpoints
         var query = new AllCustomersQuery();
         var fetchAll = await mediator.Send(query);
         return fetchAll.Succeeded()
-            ? Results.Ok(fetchAll.Unwrap().Select(x => x.ToResponse()))
+            ? Results.Ok(fetchAll.Unwrap().Select(x => x.ToContract()))
             : fetchAll.Problem().ToProblemDetailsResult();
     }
 
@@ -73,7 +73,7 @@ internal static class CustomerEndpoints
         var fetch = await mediator.Send(query);
 
         return fetch.Succeeded()
-            ? Results.Ok(fetch.Unwrap().ToResponse())
+            ? Results.Ok(fetch.Unwrap().ToContract())
             : fetch.Problem().ToProblemDetailsResult();
     }
 
@@ -90,9 +90,9 @@ internal static class CustomerEndpoints
         if (!fetch.Succeeded()) return fetch.Problem().ToProblemDetailsResult();
         
         // Update
-        var update = await mediator.Send(request.ToCqrs(fetch.Unwrap()));
+        var update = await mediator.Send(request.ToMediatorRequest(fetch.Unwrap()));
         return update.Succeeded()
-            ? Results.Ok(update.Unwrap().ToResponse())
+            ? Results.Ok(update.Unwrap().ToContract())
             : update.Problem().ToProblemDetailsResult();
     }
 

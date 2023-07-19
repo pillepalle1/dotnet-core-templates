@@ -8,7 +8,7 @@ global using Customers.WebApi.Config;
 global using Customers.WebApi.Extensions;
 global using Customers.WebApi.Endpoints;
 
-global using Customers.WebApi.Converters;
+global using Customers.WebApi.Mappers;
 global using Customers.WebApi.Contracts;
 
 global using Customers.Application;

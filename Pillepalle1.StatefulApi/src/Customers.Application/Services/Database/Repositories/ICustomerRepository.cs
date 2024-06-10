@@ -44,6 +44,11 @@ internal class SqliteCustomerRepository : ICustomerRepository
         return null;
     }
     
+    private const string CreateCustomerSql = 
+        """
+        INSERT INTO Customers (Id,Name,Details) VALUES (@Id,@Name,@Details);
+        """; 
+    
     // Read
 
     public async Task<Customer?> ReadByIdAsync(Guid customerId, IDbConnection dbConnection, IDbTransaction? dbTransaction = null)
@@ -102,6 +107,11 @@ internal class SqliteCustomerRepository : ICustomerRepository
         return null;
     }
     
+    private const string UpdateCustomerSql =
+        """
+        UPDATE Customers SET Name=@Name,Details=@Details WHERE Id=@Id;
+        """;
+    
     public async Task<Customer?> UpdateOrCreateAsync(Customer customer, IDbConnection dbConnection, IDbTransaction? dbTransaction = null)
     {
         var rowsAffectedByUpdate = await dbConnection.ExecuteAsync(UpdateCustomerSql, customer, dbTransaction);
@@ -119,16 +129,6 @@ internal class SqliteCustomerRepository : ICustomerRepository
         return null;
 
     }
-
-    private const string UpdateCustomerSql =
-        """
-        UPDATE Customers SET Name=@Name,Details=@Details WHERE Id=@Id;
-        """;
-    
-    private const string CreateCustomerSql = 
-        """
-        INSERT INTO Customers (Id,Name,Details) VALUES (@Id,@Name,@Details);
-        """; 
     
     // Delete
 

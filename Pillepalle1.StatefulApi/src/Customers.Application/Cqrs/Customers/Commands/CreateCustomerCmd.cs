@@ -3,6 +3,8 @@ namespace Customers.Application.Cqrs.Customers.Commands;
 public class CreateCustomerCmd : ARequest<Customer>
 {
     public required string Name { init; get; }
+    public string NameNormalized => Name.NormalizeCustomerName();
+    
     public required string Details { init; get; }
 }
 

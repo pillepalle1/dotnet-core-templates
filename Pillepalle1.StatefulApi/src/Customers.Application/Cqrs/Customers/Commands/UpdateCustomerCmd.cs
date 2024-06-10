@@ -3,7 +3,10 @@ namespace Customers.Application.Cqrs.Customers.Commands;
 public class UpdateCustomerCmd : ARequest<Customer>
 {
     public required Guid CustomerId { init; get; }
+    
     public required string Name { init; get; }
+    public string NameNormalized => Name.NormalizeCustomerName();
+    
     public required string Details { init; get; }
 }
 

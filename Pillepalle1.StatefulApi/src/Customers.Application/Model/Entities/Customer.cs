@@ -3,7 +3,10 @@
 public class Customer
 {
     public required Guid Id { init; get; }
+    
     public required string Name { init; get; }
+    public required string NameNormalized { init; get; }
+    
     public required string Details { init; get; }
 }
 
@@ -12,7 +15,7 @@ public class CustomerValidator : AbstractValidator<Customer>
     public CustomerValidator()
     {
         RuleFor(x => x.Id).IsValidId();
-        RuleFor(x => x.Name).IsValidCustomerName();
+        RuleFor(x => x.NameNormalized).IsValidCustomerName();
         RuleFor(x => x.Details).AreValidCustomerDetails();
     }
 }
@@ -23,6 +26,7 @@ public static class CustomerMappingExtensions
     {
         Id = Guid.NewGuid(),
         Name = cmd.Name,
+        NameNormalized = cmd.NameNormalized,
         Details = cmd.Details
     };
 
@@ -30,6 +34,7 @@ public static class CustomerMappingExtensions
     {
         Id = cmd.CustomerId,
         Name = cmd.Name,
+        NameNormalized = cmd.NameNormalized,
         Details = cmd.Details
     };
 }
@@ -37,7 +42,7 @@ public static class CustomerMappingExtensions
 public static class CustomerNormalizingExtensions
 {
     public static string NormalizeCustomerName(this string customerName)
-        => customerName.Trim().ToUpper();
+        => customerName.DefaultNormalization();
 }
 
 public static class CustomerValidationExtensions

@@ -36,14 +36,7 @@ internal class UpdateCustomerCmdHandler(
         }
         
         // Update customer
-        var updatedCustomer = new Customer()
-        {
-            Id = cmd.CustomerId,
-            Name = cmd.Name,
-            Details = cmd.Details
-        };
-
-        var customerUpdated = await customerRepository.UpdateAsync(updatedCustomer, dbConnection);
+        var customerUpdated = await customerRepository.UpdateAsync(cmd.MapToEntity(), dbConnection);
         if (customerUpdated is not null)
         {
             return customerUpdated;

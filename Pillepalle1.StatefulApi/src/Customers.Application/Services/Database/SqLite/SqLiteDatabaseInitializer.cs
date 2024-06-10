@@ -1,4 +1,4 @@
-namespace Customers.Application.Services.SqLite;
+namespace Customers.Application.Services.Database.SqLite;
 
 internal class SqLiteDatabaseInitializer : IDatabaseInitializer
 {

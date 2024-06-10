@@ -1,7 +1,11 @@
 ﻿namespace Customers.Application.Extensions;
 
-public static class NormalizingExtensions
+internal static class NormalizingExtensions
 {
-    public static string NormalizeCurrency(this string currency) 
-        => currency.Trim().ToUpper();
+    public static string DefaultNormalization(this string s)
+        => s.Trim().ToUpper();
+
+    public static string LightNormalization(this string s)
+        => s.Trim();
+
 }

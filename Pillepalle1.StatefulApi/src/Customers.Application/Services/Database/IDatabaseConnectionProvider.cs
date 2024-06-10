@@ -1,4 +1,4 @@
-namespace Customers.Application.Services;
+namespace Customers.Application.Services.Database;
 
 internal interface IDatabaseConnectionProvider
 {

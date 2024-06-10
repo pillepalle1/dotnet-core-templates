@@ -1,5 +1,8 @@
 // ------------------------------------------------------------------------------------------------
 // Configure services here
+
+using Customers.Application.Services.Database;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSystemd();
 builder.Services.AddEndpointsApiExplorer();
@@ -12,7 +15,7 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Customers", Version = "v1"
     });
 });
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 
 builder.ConfigureWebApi();
 

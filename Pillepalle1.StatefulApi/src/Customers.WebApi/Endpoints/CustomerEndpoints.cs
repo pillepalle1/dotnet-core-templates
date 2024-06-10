@@ -1,3 +1,6 @@
+using Customers.Application.Cqrs.Customers.Commands;
+using Customers.Application.Cqrs.Customers.Queries;
+
 namespace Customers.WebApi.Endpoints;
 
 internal static class CustomerEndpoints
@@ -45,7 +48,7 @@ internal static class CustomerEndpoints
         CreateCustomerRequest request,
         IMediator mediator)
     {
-        var create = await mediator.Send(request.ToMediatorRequest());
+        var create = await mediator.Send(request.ToMediator());
         return create.Succeeded()
             ? Results.Created($"/customers/{create.Unwrap().Id}", create.Unwrap())
             : create.Problem().ToProblemDetailsResult();
@@ -90,7 +93,7 @@ internal static class CustomerEndpoints
         if (!fetch.Succeeded()) return fetch.Problem().ToProblemDetailsResult();
         
         // Update
-        var update = await mediator.Send(request.ToMediatorRequest(fetch.Unwrap()));
+        var update = await mediator.Send(request.ToMediator(fetch.Unwrap()));
         return update.Succeeded()
             ? Results.Ok(update.Unwrap().ToContract())
             : update.Problem().ToProblemDetailsResult();

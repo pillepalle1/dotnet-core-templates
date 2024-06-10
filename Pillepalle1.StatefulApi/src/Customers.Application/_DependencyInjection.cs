@@ -12,19 +12,28 @@ public static class DependencyInjection
         var executingAssembly = Assembly.GetExecutingAssembly();
         services.AddValidatorsFromAssembly(executingAssembly);
         services.AddMediatR(executingAssembly);
-
+        
         // Manually add remaining services
         services.AddConfiguration(config);
-        services.ConfigureSqlite();
+        
+        services.AddSqlite();
+        services.AddRepositories();
 
         return services;
     }
 
-    public static IServiceCollection AddConfiguration(this IServiceCollection services, IConfiguration config)
+    private static IServiceCollection AddConfiguration(this IServiceCollection services, IConfiguration config)
     {
         services.Configure<CustomerConfig>(config.GetSection(CustomerConfig.SectionName));
         services.AddTransient<CustomerConfig>(provider => provider.GetRequiredService<IOptions<CustomerConfig>>().Value);
 
+        return services;
+    }
+
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddSingleton<ICustomerRepository, SqliteCustomerRepository>();
+        
         return services;
     }
 }

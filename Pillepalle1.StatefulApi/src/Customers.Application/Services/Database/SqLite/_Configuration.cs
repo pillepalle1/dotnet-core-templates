@@ -4,7 +4,7 @@ namespace Customers.Application.Services.Database.SqLite;
 
 public static class _Configuration
 {
-    public static IServiceCollection ConfigureSqlite(this IServiceCollection services)
+    public static IServiceCollection AddSqlite(this IServiceCollection services)
     {
         SqlMapper.AddTypeHandler(new GuidHandler());
         SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());

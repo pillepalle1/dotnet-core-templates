@@ -1,8 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 // Configure services here
 
-using Customers.Application.Services.Database;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSystemd();
 builder.Services.AddEndpointsApiExplorer();

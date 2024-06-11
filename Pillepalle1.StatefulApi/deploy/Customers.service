@@ -2,6 +2,8 @@
 # loginctl enable-linger {user}
 # systemctl --user enable Customers.service
 # systemctl --user start Customers.service
+#
+# User-Systemd: /home/{user}/.config/systemd/user
 
 [Unit]
 Description=Customers (Staging | Production)
@@ -9,7 +11,7 @@ Description=Customers (Staging | Production)
 [Service]
 Type=notify
 
-WorkingDirectory=/srv/Customers
+WorkingDirectory=/home/{user}/srv/Customers
 ExecStart=/usr/share/dotnet/dotnet /home/{user}/srv/Customers/Customers.WebApi.dll
 
 SyslogIdentifier=Customers

@@ -13,8 +13,10 @@ global using Customers.WebApi.Contracts;
 
 global using Customers.Application;
 global using Customers.Application.Model;
-global using Customers.Application.Services;
 global using Customers.Application.Extensions;
 global using Customers.Application.Model.Entities;
+
+global using Customers.Application.Services;
+global using Customers.Application.Services.Database;
 
 global using Customers.Application.Cqrs.Customers.Commands;

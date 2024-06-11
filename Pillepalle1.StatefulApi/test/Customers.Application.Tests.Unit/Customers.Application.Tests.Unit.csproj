@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AssemblyName>Customers.Application.Tests.Unit</AssemblyName>
         <RootNamespace>Customers.Application.Tests.Unit</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>

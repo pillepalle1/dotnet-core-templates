@@ -1,6 +1,6 @@
 namespace Customers.WebApi.Mappers;
 
-public static class CqrsContractMappingExtensions
+public static class CustomerMappingExtensions
 {
     public static CreateCustomerCmd ToMediator(this CreateCustomerRequest request) => new()
     {

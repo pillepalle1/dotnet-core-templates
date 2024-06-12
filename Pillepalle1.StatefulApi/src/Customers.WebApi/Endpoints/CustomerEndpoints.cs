@@ -1,10 +1,10 @@
-using Customers.Application.Cqrs.Customers.Commands;
 using Customers.Application.Cqrs.Customers.Queries;
 
 namespace Customers.WebApi.Endpoints;
 
 internal static class CustomerEndpoints
 {
+    private const string EndpointTags = "Customer";
     internal static void RegisterCustomerEndpoints(this WebApplication app)
     {
         app.MapPut("/customers", PUT_Customer)
@@ -13,20 +13,20 @@ internal static class CustomerEndpoints
             .Produces<ProblemDetails>(400)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-modify-customers")
-            .WithTags("Customers");
+            .WithTags(EndpointTags);
 
         app.MapGet("/customers", GET_Customers)
             .Produces<IEnumerable<CustomerResponse>>()
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-view-customers")
-            .WithTags("Customers");
+            .WithTags(EndpointTags);
 
         app.MapGet("/customers/{id:guid}", GET_Customer)
             .Produces<CustomerResponse>()
             .Produces<ProblemDetails>(404)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-view-customers")
-            .WithTags("Customers");
+            .WithTags(EndpointTags);
 
         app.MapPost("/customers/{id:guid}", POST_Customer)
             .Produces(200)
@@ -34,14 +34,14 @@ internal static class CustomerEndpoints
             .Produces<ProblemDetails>(404)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-modify-customers")
-            .WithTags("Customers");
+            .WithTags(EndpointTags);
 
         app.MapDelete("/customers/{id:guid}", DELETE_Customer)
             .Produces(204)
             .Produces<ProblemDetails>(404)
             .Produces<ProblemDetails>(500)
             //.RequireAuthorization("can-modify-customers")
-            .WithTags("Customers");
+            .WithTags(EndpointTags);
     }
 
     private static async Task<IResult> PUT_Customer(
